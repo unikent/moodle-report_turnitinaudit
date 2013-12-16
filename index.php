@@ -40,7 +40,22 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('turnitinaudit', 'report_turnitinaudit'));
 
-$changescount = $DB->count_records('course_categories');
+$sql =<<<SQLDATA
+SELECT COUNT(DISTINCT cc.id) 
+FROM {course_categories} cc 
+JOIN {course_categories} cco 
+ON concat(cc.path,'/') LIKE concat(cco.path,'/%') 
+AND cco.name<>'Removed' 
+JOIN {course} c 
+ON c.category = cc.id
+JOIN {course_modules} cm 
+ON cm.course = c.id
+JOIN {modules} m
+ON m.id = cm.module
+AND m.name='turnitintool'
+SQLDATA;
+
+$changescount = $DB->count_records_sql($sql);
 
 $columns = array('name'    => get_string('catname', 'report_turnitinaudit'),
                  'shortname'     => get_string('shortname', 'report_turnitinaudit'),
