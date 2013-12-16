@@ -23,8 +23,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $CFG, $OUTPUT, $DB;
+
 require(dirname(__FILE__).'/../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
+
 
 // page parameters
 $page    = optional_param('page', 0, PARAM_INT);
@@ -117,30 +120,34 @@ ON cm.course = c.id
 JOIN {modules} m
 ON m.id = cm.module
 AND m.name='turnitintool'
-JOIN mdl_turnitintool t
+JOIN {turnitintool} t
 ON c.id=t.course
 AND cm.instance = t.id
-GROUP BY 2,3
-ORDER BY $orderby cc.path, c.shortname
-SQLDATA
-
+GROUP BY shortname,tii_name
+ORDER BY $orderby 
+SQLDATA;
 
 $rs = $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
-foreach ($rs as $data) {
-    $row = array();
-    $row[] = s($data->name);
-    $row[] = s($data->shortname);
-    $row[] = s($data->tii_name);
-    $row[] = s($data->tii_parts);
-    $row[] = s($data->tii_anon);
-    $row[] = s($data->tii_allowlate);
-    $row[] = s($data->tii_reportgenspeed);
-    $row[] = s($data->tii_submitpapersto);
-    $row[] = s($data->tii_studentorigreports);
-    $row[] = s($data->tii_restrict_access);
 
-    $table->data[] = $row;
+if ($rs->valid()) {
+    foreach ($rs as $data) {
+        var_dump($data);
+        $row = array();
+        $row[] = s($data->name);
+        $row[] = s($data->shortname);
+        $row[] = s($data->tii_name);
+        $row[] = s($data->tii_parts);
+        $row[] = s($data->tii_anon);
+        $row[] = s($data->tii_allowlate);
+        $row[] = s($data->tii_reportgenspeed);
+        $row[] = s($data->tii_submitpapersto);
+        $row[] = s($data->tii_studentorigreports);
+        $row[] = s($data->tii_restrict_access);
+
+        $table->data[] = $row;
+    }
 }
+
 $rs->close();
 
 echo html_writer::table($table);
