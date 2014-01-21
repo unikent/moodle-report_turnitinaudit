@@ -108,36 +108,54 @@ $table->data  = array();
 $orderby = "$sort $dir";
 
 $sql = <<< SQL
-SELECT GROUP_CONCAT(DISTINCT cco.name ORDER BY cco.path SEPARATOR ' / ') name,
-c.shortname, t.name tii_name, t.numparts tii_parts,
-CASE t.anon WHEN 1 THEN 'Yes' ELSE 'No' END tii_anon,
-CASE t.allowlate WHEN 1 THEN 'Yes' ELSE 'No' END  tii_allowlate,
-CASE t.reportgenspeed
-WHEN 0 THEN 'Generate reports immediately, first report is final'
-WHEN 1 THEN 'Generate reports immediately, reports can be overwritten until due date'
-ELSE 'Generate reports on due date' END  tii_reportgenspeed,
-CASE t.submitpapersto
-WHEN 0 THEN 'No Repository'
-WHEN 1 THEN 'Standard Repository'
-ELSE 'Institutional Repository (Where Applicable)' END  tii_submitpapersto,
-CASE t.studentreports WHEN 1 THEN 'Yes' ELSE 'No' END  tii_studentorigreports,
-CASE WHEN availablefrom >0 OR availableuntil >0 THEN 'Yes' ELSE 'No' END tii_restrict_access
-FROM {course} c
-JOIN {course_categories} cc
-ON c.category = cc.id
-JOIN {course_categories} cco
-ON concat(cc.path,'/') like concat(cco.path,'/%')
-AND cco.name<>'Removed'
-JOIN {course_modules} cm
-ON cm.course = c.id
-JOIN {modules} m
-ON m.id = cm.module
-AND m.name='turnitintool'
-JOIN {turnitintool} t
-ON c.id=t.course
-AND cm.instance = t.id
-GROUP BY shortname,tii_name
-ORDER BY $orderby
+    SELECT
+        GROUP_CONCAT(DISTINCT cco.name ORDER BY cco.path SEPARATOR ' / ') name,
+        c.shortname,
+        t.name tii_name,
+        t.numparts tii_parts,
+        CASE t.anon
+            WHEN 1 THEN 'Yes'
+            ELSE 'No'
+        END tii_anon,
+        CASE
+            t.allowlate WHEN 1 THEN 'Yes'
+            ELSE 'No'
+        END  tii_allowlate,
+        CASE
+            t.reportgenspeed
+            WHEN 0 THEN 'Generate reports immediately, first report is final'
+            WHEN 1 THEN 'Generate reports immediately, reports can be overwritten until due date'
+            ELSE 'Generate reports on due date'
+        END  tii_reportgenspeed,
+        CASE t.submitpapersto
+            WHEN 0 THEN 'No Repository'
+            WHEN 1 THEN 'Standard Repository'
+            ELSE 'Institutional Repository (Where Applicable)'
+        END  tii_submitpapersto,
+        CASE t.studentreports
+            WHEN 1 THEN 'Yes'
+            ELSE 'No'
+        END  tii_studentorigreports,
+        CASE
+            WHEN availablefrom > 0 OR availableuntil > 0 THEN 'Yes'
+            ELSE 'No'
+        END tii_restrict_access
+    FROM {course} c
+        JOIN {course_categories} cc
+            ON c.category = cc.id
+        JOIN {course_categories} cco
+            ON CONCAT(cc.path,'/') like CONCAT(cco.path,'/%')
+                AND cco.name <> 'Removed'
+        JOIN {course_modules} cm
+            ON cm.course = c.id
+        JOIN {modules} m
+            ON m.id = cm.module
+                AND m.name = 'turnitintool'
+        JOIN {turnitintool} t
+            ON c.id=t.course
+                AND cm.instance = t.id
+    GROUP BY shortname, tii_name
+    ORDER BY $orderby
 SQL;
 
 $rs = $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
