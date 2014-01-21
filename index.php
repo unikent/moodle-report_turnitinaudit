@@ -144,7 +144,6 @@ $rs = $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
 
 if ($rs->valid()) {
     foreach ($rs as $data) {
-        var_dump($data);
         $row = array();
         $row[] = s($data->name);
         $row[] = s($data->shortname);
