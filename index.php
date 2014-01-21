@@ -39,7 +39,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('turnitinaudit', 'report_turnitinaudit'));
 
 $sql = <<<SQL
-    SELECT COUNT(DISTINCT cc.id)
+    SELECT COUNT(DISTINCT cm.id)
         FROM {course_categories} cc
             JOIN {course_categories} cco
                 ON concat(cc.path,'/') LIKE concat(cco.path,'/%')
