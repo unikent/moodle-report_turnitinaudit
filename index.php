@@ -22,12 +22,10 @@
  * @copyright  2009 Petr Skoda
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 global $CFG, $OUTPUT, $DB;
 
-require(dirname(__FILE__).'/../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
-
+require dirname(__FILE__).'/../../config.php';
+require_once $CFG->libdir.'/adminlib.php';
 
 // page parameters
 $page    = optional_param('page', 0, PARAM_INT);
@@ -36,38 +34,38 @@ $sort    = optional_param('sort', 'timemodified', PARAM_ALPHA);
 $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
 
 admin_externalpage_setup('reportturnitinaudit', '', null, '', array('pagelayout'=>'report'));
-echo $OUTPUT->header();
 
+echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('turnitinaudit', 'report_turnitinaudit'));
 
-$sql =<<<SQLDATA
-SELECT COUNT(DISTINCT cc.id) 
-FROM {course_categories} cc 
-JOIN {course_categories} cco 
-ON concat(cc.path,'/') LIKE concat(cco.path,'/%') 
-AND cco.name<>'Removed' 
-JOIN {course} c 
-ON c.category = cc.id
-JOIN {course_modules} cm 
-ON cm.course = c.id
-JOIN {modules} m
-ON m.id = cm.module
-AND m.name='turnitintool'
-SQLDATA;
+$sql = <<<SQL
+    SELECT COUNT(DISTINCT cc.id)
+        FROM {course_categories} cc
+            JOIN {course_categories} cco
+                ON concat(cc.path,'/') LIKE concat(cco.path,'/%')
+                    AND cco.name<>'Removed'
+            JOIN {course} c
+                ON c.category = cc.id
+            JOIN {course_modules} cm
+                ON cm.course = c.id
+            JOIN {modules} m
+                ON m.id = cm.module
+                    AND m.name='turnitintool'
+SQL;
 
 $changescount = $DB->count_records_sql($sql);
 
 $columns = array('name'    => get_string('catname', 'report_turnitinaudit'),
-                 'shortname'     => get_string('shortname', 'report_turnitinaudit'),
-                 'tii_name' => get_string('tii_name', 'report_turnitinaudit'),
-                 'tii_parts'       => get_string('tii_parts', 'report_turnitinaudit'),
-                 'tii_anon'         => get_string('tii_anon', 'report_turnitinaudit'),
-                 'tii_allowlate'        => get_string('tii_allowlate', 'report_turnitinaudit'),
-                 'tii_reportgenspeed'     => get_string('tii_reportgenspeed', 'report_turnitinaudit'),
-                 'tii_submitpapersto'     => get_string('tii_submitpapersto', 'report_turnitinaudit'),
-                 'tii_studentorigreports'     => get_string('tii_studentorigreports', 'report_turnitinaudit'),
-                 'tii_restrict_access'     => get_string('tii_restrict_access', 'report_turnitinaudit'),
-                );
+    'shortname'     => get_string('shortname', 'report_turnitinaudit'),
+    'tii_name' => get_string('tii_name', 'report_turnitinaudit'),
+    'tii_parts'       => get_string('tii_parts', 'report_turnitinaudit'),
+    'tii_anon'         => get_string('tii_anon', 'report_turnitinaudit'),
+    'tii_allowlate'        => get_string('tii_allowlate', 'report_turnitinaudit'),
+    'tii_reportgenspeed'     => get_string('tii_reportgenspeed', 'report_turnitinaudit'),
+    'tii_submitpapersto'     => get_string('tii_submitpapersto', 'report_turnitinaudit'),
+    'tii_studentorigreports'     => get_string('tii_studentorigreports', 'report_turnitinaudit'),
+    'tii_restrict_access'     => get_string('tii_restrict_access', 'report_turnitinaudit'),
+);
 $hcolumns = array();
 
 
@@ -100,8 +98,8 @@ $baseurl = new moodle_url('index.php', array('sort' => $sort, 'dir' => $dir, 'pe
 echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
 
 $table = new html_table();
-$table->head  = array($hcolumns['name'], $hcolumns['shortname'], $hcolumns['tii_name'], $hcolumns['tii_parts'], $hcolumns['tii_anon'], $hcolumns['tii_allowlate'], 
-                                        $hcolumns['tii_reportgenspeed'], $hcolumns['tii_submitpapersto'], $hcolumns['tii_studentorigreports'], $hcolumns['tii_restrict_access']);
+$table->head  = array($hcolumns['name'], $hcolumns['shortname'], $hcolumns['tii_name'], $hcolumns['tii_parts'], $hcolumns['tii_anon'], $hcolumns['tii_allowlate'],
+    $hcolumns['tii_reportgenspeed'], $hcolumns['tii_submitpapersto'], $hcolumns['tii_studentorigreports'], $hcolumns['tii_restrict_access']);
 $table->colclasses = array('leftalign name', 'leftalign shortname', 'leftalign tii_name', 'leftalign tii_parts', 'leftalign tii_anon', 'leftalign tii_allowlate');
 $table->id = 'turnitinaudit';
 $table->attributes['class'] = 'admintable generaltable';
@@ -109,28 +107,28 @@ $table->data  = array();
 
 $orderby = "$sort $dir";
 
-$sql = <<< SQLDATA
+$sql = <<< SQL
 SELECT GROUP_CONCAT(DISTINCT cco.name ORDER BY cco.path SEPARATOR ' / ') name,
-c.shortname, t.name tii_name, t.numparts tii_parts, 
-CASE t.anon WHEN 1 THEN 'Yes' ELSE 'No' END tii_anon, 
-CASE t.allowlate WHEN 1 THEN 'Yes' ELSE 'No' END  tii_allowlate, 
+c.shortname, t.name tii_name, t.numparts tii_parts,
+CASE t.anon WHEN 1 THEN 'Yes' ELSE 'No' END tii_anon,
+CASE t.allowlate WHEN 1 THEN 'Yes' ELSE 'No' END  tii_allowlate,
 CASE t.reportgenspeed
 WHEN 0 THEN 'Generate reports immediately, first report is final'
-WHEN 1 THEN 'Generate reports immediately, reports can be overwritten until due date' 
+WHEN 1 THEN 'Generate reports immediately, reports can be overwritten until due date'
 ELSE 'Generate reports on due date' END  tii_reportgenspeed,
-CASE t.submitpapersto 
-WHEN 0 THEN 'No Repository' 
+CASE t.submitpapersto
+WHEN 0 THEN 'No Repository'
 WHEN 1 THEN 'Standard Repository'
 ELSE 'Institutional Repository (Where Applicable)' END  tii_submitpapersto,
 CASE t.studentreports WHEN 1 THEN 'Yes' ELSE 'No' END  tii_studentorigreports,
 CASE WHEN availablefrom >0 OR availableuntil >0 THEN 'Yes' ELSE 'No' END tii_restrict_access
-FROM {course} c 
+FROM {course} c
 JOIN {course_categories} cc
 ON c.category = cc.id
 JOIN {course_categories} cco
 ON concat(cc.path,'/') like concat(cco.path,'/%')
 AND cco.name<>'Removed'
-JOIN {course_modules} cm 
+JOIN {course_modules} cm
 ON cm.course = c.id
 JOIN {modules} m
 ON m.id = cm.module
@@ -139,8 +137,8 @@ JOIN {turnitintool} t
 ON c.id=t.course
 AND cm.instance = t.id
 GROUP BY shortname,tii_name
-ORDER BY $orderby 
-SQLDATA;
+ORDER BY $orderby
+SQL;
 
 $rs = $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
 
