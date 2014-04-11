@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Local stuff for Moodle Connect
+ * Grademark functions for Turnitin Audit Report
  *
  * @package    report_turnitinaudit
  * @copyright  2014 Jake Blatchford <J.Blatchford@kent.ac.uk>
