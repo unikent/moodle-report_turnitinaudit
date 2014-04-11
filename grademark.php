@@ -27,36 +27,54 @@ global $CFG, $OUTPUT, $DB;
 require(dirname(__FILE__).'/../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 
-
 // page parameters
 $page    = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', 30, PARAM_INT);    // how many per page
 $sort    = optional_param('sort', 'timemodified', PARAM_ALPHA);
 $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
+$format  = optional_param('format', null, PARAM_ALPHA);
+
+// We exporting a CSV?
+if (isset($format) && $format === "csv") {
+    require_once($CFG->libdir . '/csvlib.class.php');
+
+    $assignments = report_turnitinaudit_grademark::get_assignments($page, $perpage);
+
+    $headings = array(
+        "Module Shortcode",
+        "Assignment",
+        "Students on course",
+        "Students with submissions",
+        "Students with grades"
+    );
+
+    $csv = array($headings);
+
+    foreach ($assignments as $data) {
+        $csv[] = $data;
+    }
+
+    \csv_export_writer::download_array("Turnitin_Grademark_Report", $csv, "comma");
+    die;
+}
 
 admin_externalpage_setup('reportturnitinauditgrademark', '', null, '', array('pagelayout' => 'report'));
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('turnitinaudit_grademark', 'report_turnitinaudit'));
 
-$sql = <<<SQL
-    SELECT 
-        COUNT(*)
-    FROM
-        {turnitintool}
-SQL;
-
-$assignment_count = $DB->count_records_sql($sql);
+$assignment_count = $DB->count_records('turnitintool');
 
 echo "<p>There are $assignment_count turnitintool assignments.</p>";
+echo '<p style="float:right"><a href="?format=csv" target="_blank">Download CSV</a></p>';
 
 $table = new html_table();
 $table->head = array(
-    "Module",
+    "Module Shortcode",
     "Assignment",
     "Students on course",
     "Students with submissions",
-    "Students with grades"    
+    "Students with grades"
 );
 
 $table->colclasses = array('leftalign assignment', 'leftalign students_on_assignment', 'leftalign students_with_grades', 'leftalign students_on_course');
@@ -64,50 +82,7 @@ $table->id = 'turnitinaudit_grademark';
 $table->attributes['class'] = 'admintable generaltable';
 $table->data = array();
 
-$sql = <<<SQL
-    SELECT 
-        c.shortname as course_shortname,
-        a.name as assignment_name,
-        a.students_with_submissions,
-        a.students_with_grades,
-        COUNT(ue.id) as students_on_course
-    FROM
-        (SELECT 
-            counts . *,
-                SUM(Case
-                    When ts.submission_grade IS NOT NULL THEN 1
-                    ELSE 0
-                END) as students_with_grades
-        FROM
-            mdl_turnitintool_submissions ts
-        INNER JOIN (SELECT 
-            t.id as turnitintool_id,
-                t.name as name,
-                t.course as course,
-                COUNT(ts.id) as students_with_submissions
-        FROM
-            mdl_turnitintool t
-        INNER JOIN mdl_turnitintool_submissions ts ON ts.turnitintoolid = t.id
-        GROUP BY t.id) as counts ON counts.turnitintool_id = ts.turnitintoolid
-        GROUP BY turnitintoolid) a
-            INNER JOIN
-        mdl_enrol e ON e.courseid = a.course
-            INNER JOIN
-        mdl_course c ON c.id = a.course
-            INNER JOIN
-        mdl_user_enrolments ue ON ue.enrolid = e.id
-    WHERE
-        e.roleid IN (SELECT 
-                id
-            FROM
-                mdl_role
-            WHERE
-                shortname = 'student'
-                    OR shortname = 'sds_student')
-    GROUP BY a.turnitintool_id
-SQL;
-
-$assignments = $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
+$assignments = report_turnitinaudit_grademark::get_assignments($page, $perpage);
 
 if ($assignments->valid()) {
     foreach ($assignments as $data) {
@@ -126,6 +101,59 @@ if ($assignments->valid()) {
 echo html_writer::table($table);
 
 $baseurl = new moodle_url('grademark.php', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
-echo $OUTPUT->paging_bar($assignment_count, $page, $perpage, $baseurl);
 
+echo $OUTPUT->paging_bar($assignment_count, $page, $perpage, $baseurl);
 echo $OUTPUT->footer();
+
+
+class report_turnitinaudit_grademark {
+    public static function get_assignments($page, $perpage) {
+        global $DB;
+
+        $sql =
+<<<SQL
+            SELECT 
+                c.shortname as course_shortname,
+                a.name as assignment_name,
+                a.students_with_submissions,
+                a.students_with_grades,
+                COUNT(ue.id) as students_on_course
+            FROM
+                (SELECT 
+                    counts . *,
+                        SUM(Case
+                            When ts.submission_grade IS NOT NULL THEN 1
+                            ELSE 0
+                        END) as students_with_grades
+                FROM
+                    {turnitintool_submissions} ts
+                INNER JOIN (SELECT 
+                    t.id as turnitintool_id,
+                        t.name as name,
+                        t.course as course,
+                        COUNT(ts.id) as students_with_submissions
+                FROM
+                    {turnitintool} t
+                INNER JOIN {turnitintool_submissions} ts ON ts.turnitintoolid = t.id
+                GROUP BY t.id) as counts ON counts.turnitintool_id = ts.turnitintoolid
+                GROUP BY turnitintoolid) a
+                    INNER JOIN
+                {enrol} e ON e.courseid = a.course
+                    INNER JOIN
+                {course} c ON c.id = a.course
+                    INNER JOIN
+                {user_enrolments} ue ON ue.enrolid = e.id
+            WHERE
+                e.roleid IN (SELECT 
+                        id
+                    FROM
+                        {role}
+                    WHERE
+                        shortname = 'student'
+                            OR shortname = 'sds_student')
+            GROUP BY a.turnitintool_id
+SQL;
+
+        return $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
+    }
+}
