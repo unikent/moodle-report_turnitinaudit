@@ -24,6 +24,7 @@
  */
 
 $string['turnitinaudit'] = 'Turn-It-In Audit Report';
+$string['turnitinaudit_grademark'] = 'Turn-It-In Grademark Report';
 $string['plugin'] = 'Plugin';
 $string['pluginname'] = 'Turn-It-In Audit';
 $string['catname'] = 'Category';

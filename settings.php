@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die;
 defined('MOODLE_INTERNAL') || die;
 
 $ADMIN->add('reports', new admin_externalpage('reportturnitinaudit', get_string('turnitinaudit', 'report_turnitinaudit'), "$CFG->wwwroot/report/turnitinaudit/index.php"));
+$ADMIN->add('reports', new admin_externalpage('reportturnitinauditgrademark', get_string('turnitinaudit_grademark', 'report_turnitinaudit'), "$CFG->wwwroot/report/turnitinaudit/grademark.php"));
 
 // no report settings
 $settings = null;
