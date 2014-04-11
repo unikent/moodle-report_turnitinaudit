@@ -34,19 +34,19 @@ $sort    = optional_param('sort', 'timemodified', PARAM_ALPHA);
 $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
 $format  = optional_param('format', null, PARAM_ALPHA);
 
+$headings = array(
+    "Module Shortcode",
+    "Assignment",
+    "Students on course",
+    "Students with submissions",
+    "Students with grades"
+);
+
 // We exporting a CSV?
 if (isset($format) && $format === "csv") {
     require_once($CFG->libdir . '/csvlib.class.php');
 
     $assignments = report_turnitinaudit_grademark::get_assignments($page, $perpage);
-
-    $headings = array(
-        "Module Shortcode",
-        "Assignment",
-        "Students on course",
-        "Students with submissions",
-        "Students with grades"
-    );
 
     $csv = array($headings);
 
@@ -69,13 +69,7 @@ echo "<p>There are $assignment_count turnitintool assignments.</p>";
 echo '<p style="float:right"><a href="?format=csv" target="_blank">Download CSV</a></p>';
 
 $table = new html_table();
-$table->head = array(
-    "Module Shortcode",
-    "Assignment",
-    "Students on course",
-    "Students with submissions",
-    "Students with grades"
-);
+$table->head = $headings;
 
 $table->colclasses = array('leftalign assignment', 'leftalign students_on_assignment', 'leftalign students_with_grades', 'leftalign students_on_course');
 $table->id = 'turnitinaudit_grademark';
