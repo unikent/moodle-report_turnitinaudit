@@ -46,7 +46,7 @@ $headings = array(
 if (isset($format) && $format === "csv") {
     require_once($CFG->libdir . '/csvlib.class.php');
 
-    $assignments = report_turnitinaudit_grademark::get_assignments($page, $perpage);
+    $assignments = \report_turnitinaudit\grademark::get_assignments($page, $perpage);
 
     $csv = array($headings);
 
@@ -76,7 +76,7 @@ $table->id = 'turnitinaudit_grademark';
 $table->attributes['class'] = 'admintable generaltable';
 $table->data = array();
 
-$assignments = report_turnitinaudit_grademark::get_assignments($page, $perpage);
+$assignments = \report_turnitinaudit\grademark::get_assignments($page, $perpage);
 
 if ($assignments->valid()) {
     foreach ($assignments as $data) {
@@ -98,56 +98,3 @@ $baseurl = new moodle_url('grademark.php', array('sort' => $sort, 'dir' => $dir,
 
 echo $OUTPUT->paging_bar($assignment_count, $page, $perpage, $baseurl);
 echo $OUTPUT->footer();
-
-
-class report_turnitinaudit_grademark {
-    public static function get_assignments($page, $perpage) {
-        global $DB;
-
-        $sql =
-<<<SQL
-            SELECT 
-                c.shortname as course_shortname,
-                a.name as assignment_name,
-                a.students_with_submissions,
-                a.students_with_grades,
-                COUNT(ue.id) as students_on_course
-            FROM
-                (SELECT 
-                    counts . *,
-                        SUM(Case
-                            When ts.submission_grade IS NOT NULL THEN 1
-                            ELSE 0
-                        END) as students_with_grades
-                FROM
-                    {turnitintool_submissions} ts
-                INNER JOIN (SELECT 
-                    t.id as turnitintool_id,
-                        t.name as name,
-                        t.course as course,
-                        COUNT(ts.id) as students_with_submissions
-                FROM
-                    {turnitintool} t
-                INNER JOIN {turnitintool_submissions} ts ON ts.turnitintoolid = t.id
-                GROUP BY t.id) as counts ON counts.turnitintool_id = ts.turnitintoolid
-                GROUP BY turnitintoolid) a
-                    INNER JOIN
-                {enrol} e ON e.courseid = a.course
-                    INNER JOIN
-                {course} c ON c.id = a.course
-                    INNER JOIN
-                {user_enrolments} ue ON ue.enrolid = e.id
-            WHERE
-                e.roleid IN (SELECT 
-                        id
-                    FROM
-                        {role}
-                    WHERE
-                        shortname = 'student'
-                            OR shortname = 'sds_student')
-            GROUP BY a.turnitintool_id
-SQL;
-
-        return $DB->get_recordset_sql($sql, array(), $page*$perpage, $perpage);
-    }
-}
