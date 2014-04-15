@@ -46,12 +46,20 @@ $headings = array(
 if (isset($format) && $format === "csv") {
     require_once($CFG->libdir . '/csvlib.class.php');
 
-    $assignments = \report_turnitinaudit\grademark::get_assignments($page, $perpage);
+    $assignments = \report_turnitinaudit\grademark::get_assignments(0, 10000);
 
     $csv = array($headings);
 
     foreach ($assignments as $data) {
-        $csv[] = $data;
+        $row = array();
+        
+        $row[] = $data->course_shortname;
+        $row[] = $data->assignment_name;
+        $row[] = $data->students_on_course;
+        $row[] = $data->students_with_submissions;
+        $row[] = $data->students_with_grades;
+
+        $csv[] = $row;
     }
 
     \csv_export_writer::download_array("Turnitin_Grademark_Report", $csv, "comma");
