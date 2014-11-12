@@ -39,30 +39,36 @@ class grademark {
                 a.students_with_grades,
                 COUNT(ue.id) as students_on_course
             FROM
-                (SELECT
-                    counts . *,
-                        SUM(Case
-                            When ts.submission_grade IS NOT NULL THEN 1
-                            ELSE 0
-                        END) as students_with_grades
-                FROM
-                    {turnitintooltwo_submissions} ts
-                INNER JOIN (SELECT
-                    t.id as turnitintooltwo_id,
-                        t.name as name,
-                        t.course as course,
-                        COUNT(ts.id) as students_with_submissions
-                FROM
-                    {turnitintooltwo} t
-                INNER JOIN {turnitintooltwo_submissions} ts ON ts.turnitintooltwoid = t.id
-                GROUP BY t.id) as counts ON counts.turnitintooltwo_id = ts.turnitintooltwoid
-                GROUP BY turnitintooltwoid) a
-                    INNER JOIN
-                {enrol} e ON e.courseid = a.course
-                    INNER JOIN
-                {course} c ON c.id = a.course
-                    INNER JOIN
-                {user_enrolments} ue ON ue.enrolid = e.id
+                (
+                    SELECT
+                        counts.*,
+                            SUM(Case
+                                When ts.submission_grade IS NOT NULL THEN 1
+                                ELSE 0
+                            END) as students_with_grades
+                    FROM
+                        {turnitintooltwo_submissions} ts
+                    INNER JOIN (
+                        SELECT
+                            t.id as turnitintooltwo_id,
+                                t.name as name,
+                                t.course as course,
+                                COUNT(ts.id) as students_with_submissions
+                        FROM
+                            {turnitintooltwo} t
+                        INNER JOIN {turnitintooltwo_submissions} ts
+                            ON ts.turnitintooltwoid = t.id
+                        GROUP BY t.id
+                    ) as counts
+                        ON counts.turnitintooltwo_id = ts.turnitintooltwoid
+                    GROUP BY turnitintooltwoid
+                ) a
+                INNER JOIN {enrol} e
+                    ON e.courseid = a.course
+                INNER JOIN {course} c
+                    ON c.id = a.course
+                INNER JOIN {user_enrolments} ue
+                    ON ue.enrolid = e.id
             WHERE
                 e.roleid IN (SELECT
                         id
