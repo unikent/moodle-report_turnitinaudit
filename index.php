@@ -76,7 +76,14 @@ foreach ($columns as $column => $strcolumn) {
         $columnicon = " <img src=\"" . $OUTPUT->pix_url('t/' . $columnicon) . "\" alt=\"\" />";
 
     }
-    $hcolumns[$column] = "<a href=\"index.php?sort=$column&amp;dir=$columndir&amp;page=$page&amp;perpage=$perpage\">".$strcolumn."</a>$columnicon";
+
+    $url = new \moodle_url('/report/turnitinaudit/index.php', array(
+        'sort' => $column,
+        'dir' => $columndir,
+        'page' => $page,
+        'perpage' => $perpage
+    ));
+    $hcolumns[$column] = \html_writer::link($url, $strcolumn) . $columnicon;
 }
 
 $baseurl = new moodle_url('index.php', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
