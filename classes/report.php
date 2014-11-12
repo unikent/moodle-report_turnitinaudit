@@ -35,6 +35,7 @@ class report {
 
         $sql = <<< SQL
             SELECT
+                t.id,
                 GROUP_CONCAT(DISTINCT cco.name ORDER BY cco.path SEPARATOR ' / ') name,
                 c.shortname,
                 t.name tii_name,
@@ -61,11 +62,7 @@ class report {
                 CASE t.studentreports
                     WHEN 1 THEN 'Yes'
                     ELSE 'No'
-                END  tii_studentorigreports,
-                CASE
-                    WHEN availablefrom > 0 OR availableuntil > 0 THEN 'Yes'
-                    ELSE 'No'
-                END tii_restrict_access
+                END  tii_studentorigreports
             FROM {course} c
                 JOIN {course_categories} cc
                     ON c.category = cc.id
@@ -76,11 +73,11 @@ class report {
                     ON cm.course = c.id
                 JOIN {modules} m
                     ON m.id = cm.module
-                        AND m.name = 'turnitintool'
-                JOIN {turnitintool} t
+                        AND m.name = 'turnitintooltwo'
+                JOIN {turnitintooltwo} t
                     ON c.id=t.course
                         AND cm.instance = t.id
-            GROUP BY shortname, tii_name
+            GROUP BY c.shortname, t.name
             ORDER BY $orderby
 SQL;
 

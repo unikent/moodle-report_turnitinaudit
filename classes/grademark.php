@@ -46,17 +46,17 @@ class grademark {
                             ELSE 0
                         END) as students_with_grades
                 FROM
-                    {turnitintool_submissions} ts
+                    {turnitintooltwo_submissions} ts
                 INNER JOIN (SELECT
-                    t.id as turnitintool_id,
+                    t.id as turnitintooltwo_id,
                         t.name as name,
                         t.course as course,
                         COUNT(ts.id) as students_with_submissions
                 FROM
-                    {turnitintool} t
-                INNER JOIN {turnitintool_submissions} ts ON ts.turnitintoolid = t.id
-                GROUP BY t.id) as counts ON counts.turnitintool_id = ts.turnitintoolid
-                GROUP BY turnitintoolid) a
+                    {turnitintooltwo} t
+                INNER JOIN {turnitintooltwo_submissions} ts ON ts.turnitintooltwoid = t.id
+                GROUP BY t.id) as counts ON counts.turnitintooltwo_id = ts.turnitintooltwoid
+                GROUP BY turnitintooltwoid) a
                     INNER JOIN
                 {enrol} e ON e.courseid = a.course
                     INNER JOIN
@@ -71,7 +71,7 @@ class grademark {
                     WHERE
                         shortname = 'student'
                             OR shortname = 'sds_student')
-            GROUP BY a.turnitintool_id
+            GROUP BY a.turnitintooltwo_id
 SQL;
 
         return $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
