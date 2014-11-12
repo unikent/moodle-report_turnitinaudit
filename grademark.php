@@ -27,9 +27,8 @@ global $CFG, $OUTPUT, $DB;
 require(dirname(__FILE__).'/../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 
-// page parameters
 $page    = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', 30, PARAM_INT);    // how many per page
+$perpage = optional_param('perpage', 30, PARAM_INT);
 $sort    = optional_param('sort', 'timemodified', PARAM_ALPHA);
 $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
 $format  = optional_param('format', null, PARAM_ALPHA);
@@ -71,38 +70,42 @@ admin_externalpage_setup('reportturnitinauditgrademark', '', null, '', array('pa
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('turnitinaudit_grademark', 'report_turnitinaudit'));
 
-$assignment_count = $DB->count_records('turnitintooltwo');
-
-echo "<p>There are $assignment_count turnitintool V2 assignments.</p>";
 echo '<p style="float:right"><a href="?format=csv" target="_blank">Download CSV</a></p>';
 
 $table = new html_table();
 $table->head = $headings;
 
-$table->colclasses = array('leftalign assignment', 'leftalign students_on_assignment', 'leftalign students_with_grades', 'leftalign students_on_course');
+$table->colclasses = array(
+    'leftalign assignment',
+    'leftalign students_on_assignment',
+    'leftalign students_with_grades',
+    'leftalign students_on_course'
+);
 $table->id = 'turnitinaudit_grademark';
 $table->attributes['class'] = 'admintable generaltable';
 $table->data = array();
 
 $assignments = \report_turnitinaudit\grademark::get_assignments($page, $perpage);
+foreach ($assignments as $data) {
+    $row = array();
 
-if ($assignments->valid()) {
-    foreach ($assignments as $data) {
-        $row = array();
-        
-        $row[] = s($data->course_shortname);
-        $row[] = s($data->assignment_name);
-        $row[] = s($data->students_on_course);
-        $row[] = s($data->students_with_submissions);
-        $row[] = s($data->students_with_grades);
+    $row[] = s($data->course_shortname);
+    $row[] = s($data->assignment_name);
+    $row[] = s($data->students_on_course);
+    $row[] = s($data->students_with_submissions);
+    $row[] = s($data->students_with_grades);
 
-        $table->data[] = $row;
-    }
+    $table->data[] = $row;
 }
 
 echo html_writer::table($table);
 
-$baseurl = new moodle_url('grademark.php', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
+$baseurl = new moodle_url('grademark.php', array(
+    'sort' => $sort,
+    'dir' => $dir,
+    'perpage' => $perpage
+));
 
-echo $OUTPUT->paging_bar($assignment_count, $page, $perpage, $baseurl);
+$assignmentcount = $DB->count_records('turnitintooltwo');
+echo $OUTPUT->paging_bar($assignmentcount, $page, $perpage, $baseurl);
 echo $OUTPUT->footer();

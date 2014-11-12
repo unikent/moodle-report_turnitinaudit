@@ -116,7 +116,6 @@ $table->id = 'turnitinaudit';
 $table->attributes['class'] = 'admintable generaltable';
 $table->data  = array();
 
-
 $orderby = "$sort $dir";
 $result = \report_turnitinaudit\report::get_assignments($orderby, $page, $perpage);
 foreach ($result as $data) {

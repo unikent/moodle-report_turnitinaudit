@@ -74,6 +74,6 @@ class grademark {
             GROUP BY a.turnitintooltwo_id
 SQL;
 
-        return $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        return $DB->get_records_sql($sql, array(), $page * $perpage, $perpage);
     }
 }
