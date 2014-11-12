@@ -62,7 +62,11 @@ class report {
                 CASE t.studentreports
                     WHEN 1 THEN 'Yes'
                     ELSE 'No'
-                END  tii_studentorigreports
+                END  tii_studentorigreports,
+                CASE
+                    WHEN cm.availability IS NULL THEN 'No'
+                    ELSE 'Yes'
+                END tii_restrict_access
             FROM {course} c
                 JOIN {course_categories} cc
                     ON c.category = cc.id
