@@ -24,13 +24,12 @@
  */
 global $CFG, $OUTPUT, $DB;
 
-require dirname(__FILE__).'/../../config.php';
-require_once $CFG->libdir.'/adminlib.php';
+require(dirname(__FILE__).'/../../config.php');
+require_once($CFG->libdir.'/adminlib.php');
 
-// page parameters
 $page    = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', 30, PARAM_INT);    // how many per page
-$sort    = optional_param('sort', 'timemodified', PARAM_ALPHA);
+$perpage = optional_param('perpage', 30, PARAM_INT);
+$sort    = optional_param('sort', 'timemodified', PARAM_ALPHAEXT);
 $dir     = optional_param('dir', 'DESC', PARAM_ALPHA) == 'DESC' ? 'DESC' : 'ASC';
 
 admin_externalpage_setup('reportturnitinaudit', '', null, '', array('pagelayout' => 'report'));
@@ -40,19 +39,19 @@ echo $OUTPUT->heading(get_string('turnitinaudit', 'report_turnitinaudit'));
 
 $changescount = \report_turnitinaudit\report::count_assignments();
 
-$columns = array('name'    => get_string('catname', 'report_turnitinaudit'),
-    'shortname'     => get_string('shortname', 'report_turnitinaudit'),
+$columns = array(
+    'name' => get_string('catname', 'report_turnitinaudit'),
+    'shortname' => get_string('shortname', 'report_turnitinaudit'),
     'tii_name' => get_string('tii_name', 'report_turnitinaudit'),
-    'tii_parts'       => get_string('tii_parts', 'report_turnitinaudit'),
-    'tii_anon'         => get_string('tii_anon', 'report_turnitinaudit'),
-    'tii_allowlate'        => get_string('tii_allowlate', 'report_turnitinaudit'),
-    'tii_reportgenspeed'     => get_string('tii_reportgenspeed', 'report_turnitinaudit'),
-    'tii_submitpapersto'     => get_string('tii_submitpapersto', 'report_turnitinaudit'),
-    'tii_studentorigreports'     => get_string('tii_studentorigreports', 'report_turnitinaudit'),
-    'tii_restrict_access'     => get_string('tii_restrict_access', 'report_turnitinaudit'),
+    'tii_parts' => get_string('tii_parts', 'report_turnitinaudit'),
+    'tii_anon' => get_string('tii_anon', 'report_turnitinaudit'),
+    'tii_allowlate' => get_string('tii_allowlate', 'report_turnitinaudit'),
+    'tii_reportgenspeed' => get_string('tii_reportgenspeed', 'report_turnitinaudit'),
+    'tii_submitpapersto' => get_string('tii_submitpapersto', 'report_turnitinaudit'),
+    'tii_studentorigreports' => get_string('tii_studentorigreports', 'report_turnitinaudit'),
+    'tii_restrict_access' => get_string('tii_restrict_access', 'report_turnitinaudit')
 );
 $hcolumns = array();
-
 
 if (!isset($columns[$sort])) {
     $sort = 'cc.path, c.shortname';
@@ -74,7 +73,6 @@ foreach ($columns as $column => $strcolumn) {
             $columnicon = $dir == 'ASC' ? 'down' : 'up';
         }
         $columnicon = " <img src=\"" . $OUTPUT->pix_url('t/' . $columnicon) . "\" alt=\"\" />";
-
     }
 
     $url = new \moodle_url('/report/turnitinaudit/index.php', array(
