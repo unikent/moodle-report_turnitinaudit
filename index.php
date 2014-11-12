@@ -88,9 +88,30 @@ $baseurl = new moodle_url('index.php', array('sort' => $sort, 'dir' => $dir, 'pe
 echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
 
 $table = new html_table();
-$table->head  = array($hcolumns['name'], $hcolumns['shortname'], $hcolumns['tii_name'], $hcolumns['tii_parts'], $hcolumns['tii_anon'], $hcolumns['tii_allowlate'],
-    $hcolumns['tii_reportgenspeed'], $hcolumns['tii_submitpapersto'], $hcolumns['tii_studentorigreports'], $hcolumns['tii_restrict_access']);
-$table->colclasses = array('leftalign name', 'leftalign shortname', 'leftalign tii_name', 'leftalign tii_parts', 'leftalign tii_anon', 'leftalign tii_allowlate');
+$table->head  = array(
+    $hcolumns['name'],
+    $hcolumns['shortname'],
+    $hcolumns['tii_name'],
+    $hcolumns['tii_parts'],
+    $hcolumns['tii_anon'],
+    $hcolumns['tii_allowlate'],
+    $hcolumns['tii_reportgenspeed'],
+    $hcolumns['tii_submitpapersto'],
+    $hcolumns['tii_studentorigreports'],
+    $hcolumns['tii_restrict_access']
+);
+$table->colclasses = array(
+    'leftalign name',
+    'leftalign shortname',
+    'leftalign tii_name',
+    'leftalign tii_parts',
+    'leftalign tii_anon',
+    'leftalign tii_allowlate',
+    'leftalign tii_reportgenspeed',
+    'leftalign tii_submitpapersto',
+    'leftalign tii_studentorigreports',
+    'leftalign tii_restrict_access'
+);
 $table->id = 'turnitinaudit';
 $table->attributes['class'] = 'admintable generaltable';
 $table->data  = array();
