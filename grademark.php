@@ -70,7 +70,7 @@ admin_externalpage_setup('reportturnitinauditgrademark', '', null, '', array('pa
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('turnitinaudit_grademark', 'report_turnitinaudit'));
 
-echo '<p style="float:right"><a href="?format=csv" target="_blank">Download CSV</a></p>';
+echo '<p><a href="?format=csv" target="_blank">Download CSV</a></p>';
 
 $table = new html_table();
 $table->head = $headings;
