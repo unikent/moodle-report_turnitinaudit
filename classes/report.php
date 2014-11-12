@@ -72,7 +72,6 @@ class report {
                     ON c.category = cc.id
                 JOIN {course_categories} cco
                     ON CONCAT(cc.path,'/') like CONCAT(cco.path,'/%')
-                        AND cco.name <> 'Removed'
                 JOIN {course_modules} cm
                     ON cm.course = c.id
                 JOIN {modules} m
@@ -99,7 +98,6 @@ SQL;
                 FROM {course_categories} cc
                     JOIN {course_categories} cco
                         ON concat(cc.path,'/') LIKE concat(cco.path,'/%')
-                            AND cco.name<>'Removed'
                     JOIN {course} c
                         ON c.category = cc.id
                     JOIN {course_modules} cm
