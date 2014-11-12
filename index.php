@@ -134,6 +134,6 @@ foreach ($result as $data) {
     $table->data[] = $row;
 }
 
-echo html_writer::table($table);
+echo $OUTPUT->box(html_writer::table($table), 'generalbox overflowbox');
 
 echo $OUTPUT->footer();
