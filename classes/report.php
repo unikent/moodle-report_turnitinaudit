@@ -87,4 +87,28 @@ SQL;
 
         return $DB->get_records_sql($sql, array(), $page * $perpage, $perpage);
     }
+
+    /**
+     * Returns the number of Tii assignments.
+     */
+    public static function count_assignments() {
+        global $DB;
+
+        $sql = <<<SQL
+            SELECT COUNT(DISTINCT cm.id)
+                FROM {course_categories} cc
+                    JOIN {course_categories} cco
+                        ON concat(cc.path,'/') LIKE concat(cco.path,'/%')
+                            AND cco.name<>'Removed'
+                    JOIN {course} c
+                        ON c.category = cc.id
+                    JOIN {course_modules} cm
+                        ON cm.course = c.id
+                    JOIN {modules} m
+                        ON m.id = cm.module
+                            AND m.name='turnitintooltwo'
+SQL;
+
+        return $DB->count_records_sql($sql);
+    }
 }

@@ -52,7 +52,7 @@ if (isset($format) && $format === "csv") {
 
     foreach ($assignments as $data) {
         $row = array();
-        
+
         $row[] = $data->course_shortname;
         $row[] = $data->assignment_name;
         $row[] = $data->students_on_course;
@@ -71,9 +71,9 @@ admin_externalpage_setup('reportturnitinauditgrademark', '', null, '', array('pa
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('turnitinaudit_grademark', 'report_turnitinaudit'));
 
-$assignment_count = $DB->count_records('turnitintool');
+$assignment_count = $DB->count_records('turnitintooltwo');
 
-echo "<p>There are $assignment_count turnitintool assignments.</p>";
+echo "<p>There are $assignment_count turnitintool V2 assignments.</p>";
 echo '<p style="float:right"><a href="?format=csv" target="_blank">Download CSV</a></p>';
 
 $table = new html_table();
