@@ -33,6 +33,7 @@ class grademark {
         $sql =
 <<<SQL
             SELECT
+                a.turnitintooltwo_id as id,
                 c.shortname as course_shortname,
                 a.name as assignment_name,
                 a.students_with_submissions,
